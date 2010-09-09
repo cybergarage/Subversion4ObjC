@@ -20,4 +20,9 @@
 	return self;
 }
 
+-(void)dealloc
+{
+	svn_pool_destroy([self pool]);
+}
+
 @end

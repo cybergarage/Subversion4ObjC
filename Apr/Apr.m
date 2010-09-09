@@ -23,8 +23,17 @@
 - (id)init;
 {
 	if (self = [super init]) {
-		apr_initialize();
+		apr_status_t *aprErr = apr_initialize();
+		if (aprErr) {
+			[self release];
+			return nil;
+		}
+		if (atexit(apr_terminate) < 0) {
+			[self release];
+			return nil;
+		}			
 	}
 	return self;
 }
+
 @end

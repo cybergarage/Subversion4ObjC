@@ -25,6 +25,10 @@
 	return self;	
 }
 
+-(void)dealloc
+{
+}
+
 - (BOOL)checkout
 {
 	Apr *apr = [Apr sharedInstance];

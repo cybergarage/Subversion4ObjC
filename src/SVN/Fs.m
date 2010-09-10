@@ -6,7 +6,7 @@
 //  Copyright 2010 Satoshi Konno. All rights reserved.
 //
 
-#import "Svn/Fs.h"
+#import "SVN/Fs.h"
 
 #include <svn_fs.h>
 
@@ -14,8 +14,8 @@
 
 - (id)initWithPool:(Pool *)aPool
 {
-	if (self = [super init]) {
-		svn_error_t *svnErr = svn_fs_initialize([aPool pool]);
+	if (self = [super initWithPool:aPool]) {
+		svn_error_t *svnErr = svn_fs_initialize([[self pool] pool]);
 		if (svnErr) {
 			[self release];
 			return nil;
@@ -26,6 +26,7 @@
 
 -(void)dealloc
 {
+	[super dealloc];
 }
 
 @end

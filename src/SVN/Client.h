@@ -8,13 +8,25 @@
 
 #import <Foundation/Foundation.h>
 
+#import <SVN/Core.h>
+#import <SVN/Auth.h>
+#import <SVN/Fs.h>
+
 #include <svn_client.h>
 
-@interface Client : NSObject {
+@interface Client : Core {
 @private
 	svn_client_ctx_t *ctx;
+@public
+	Auth *auth;
+	Fs *fs;
 }
 
+@property(nonatomic, assign) svn_client_ctx_t *ctx;
+@property(retain) Auth *auth;
+@property(retain) Fs *fs;
+
+- (id)initWithPool:(Pool *)aPool;
 - (BOOL)checkout;
 
 @end

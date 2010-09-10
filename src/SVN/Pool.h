@@ -15,4 +15,5 @@
 }
 @property(assign) apr_pool_t *pool;
 -(id)init;
+- (id)initWithPool:(Pool *)aPool;
 @end

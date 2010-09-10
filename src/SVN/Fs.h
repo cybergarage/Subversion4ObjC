@@ -7,10 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Svn/Pool.h>
 
-@interface Fs : NSObject {
+#import <SVN/Core.h>
+
+@interface Fs : Core {
 
 }
-
+- (id)initWithPool:(Pool *)aPool;
 @end

@@ -6,7 +6,7 @@
 //  Copyright 2010 Satoshi Konno. All rights reserved.
 //
 
-#import <Svn/Pool.h>
+#import <SVN/Pool.h>
 
 @implementation Pool
 
@@ -20,8 +20,17 @@
 	return self;
 }
 
+- (id)initWithPool:(Pool *)aPool;
+{
+	if (self = [super init]) {
+		pool = svn_pool_create([aPool pool]);
+	}
+	return self;
+}
+
 -(void)dealloc
 {
+	[super dealloc];
 	svn_pool_destroy([self pool]);
 }
 

@@ -6,7 +6,7 @@
 //  Copyright 2010 Satoshi Konno. All rights reserved.
 //
 
-#import <Apr/Apr.h>
+#import <APR/Apr.h>
 
 #include <apr_general.h>
 
@@ -23,7 +23,7 @@
 - (id)init;
 {
 	if (self = [super init]) {
-		apr_status_t *aprErr = apr_initialize();
+		apr_status_t aprErr = apr_initialize();
 		if (aprErr) {
 			[self release];
 			return nil;

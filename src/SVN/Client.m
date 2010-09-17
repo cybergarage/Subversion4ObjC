@@ -20,6 +20,8 @@
 @synthesize ctx;
 @synthesize auth;
 @synthesize fs;
+@synthesize delegate;
+@synthesize delegateObject;
 
 static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, const char **tmp_file, const apr_array_header_t *commit_items, void *baton, apr_pool_t *pool);
 static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool);
@@ -30,7 +32,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 {
 	svn_error_t *err;
 	
-	if (self = [super initWithPool:aPool])
+	if (!(self = [super initWithPool:aPool]))
 		return nil;
 	
 	if ((err = svn_config_ensure (NULL, [[self pool] pool]))) {
@@ -74,6 +76,13 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	svn_auth_open (&ctx->auth_baton, [[self auth] providers], [[self pool] pool]);
 
 	return self;	
+}
+
+- (id)init
+{
+	if (!(self = [super initWithPool:[[[Pool alloc] init] autorelease]]))
+		return nil;
+	return self;
 }
 
 -(void)dealloc
@@ -125,8 +134,17 @@ static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, cons
 	return SVN_NO_ERROR;
 }
 
-static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *notify, apr_pool_t *pool)
+static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *cnotify, apr_pool_t *pool)
 {
+	Client *client = (Client *)baton;
+	
+	if (![client delegate])
+		return;
+	
+	Notify *notify = [[Notify alloc] initWithPool:[client pool]];
+	[notify setNotify:cnotify];
+	[[client delegate] notify:notify object:[client delegateObject]] ;
+	[notify release];
 }
 
 

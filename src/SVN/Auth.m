@@ -43,6 +43,7 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 
 @synthesize delegate;
 @synthesize providers;
+@synthesize delegateObject;
 
 - (id)initWithPool:(Pool *)aPool
 {
@@ -91,7 +92,7 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	if (username)
 		[authCred setUsername:[NSString stringWithUTF8String:username]];
 	
-	if (![[svnAuth delegate] simplePrompt:authCred]) {
+	if (![[svnAuth delegate] simplePrompt:authCred object:[svnAuth delegateObject]]) {
 		[authCred release];
 		return SVN_NO_ERROR;
 	}
@@ -122,7 +123,7 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 	
 	AuthCred *authCred = [[AuthCred alloc] init];
 	
-	if (![[svnAuth delegate] usernamePrompt:authCred]) {
+	if (![[svnAuth delegate] usernamePrompt:authCred object:[svnAuth delegateObject]]) {
 		[authCred release];
 		return SVN_NO_ERROR;
 	}

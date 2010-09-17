@@ -6,8 +6,8 @@
 //  Copyright 2010 Satoshi Konno. All rights reserved.
 //
 
-#import "Core.h"
-
+#import <SVN/Core.h>
+#import <APR/Apr.h>
 
 @implementation Core
 

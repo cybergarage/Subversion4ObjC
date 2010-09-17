@@ -22,16 +22,21 @@
 @end
 
 @protocol AuthDelegate
-- (BOOL)simplePrompt:(AuthCred *)authCred;
-- (BOOL)usernamePrompt:(AuthCred *)authCred;
+- (BOOL)simplePrompt:(AuthCred *)authCred object:(NSObject *)object;
+- (BOOL)usernamePrompt:(AuthCred *)authCred object:(NSObject *)object;
 @end
 
 @interface Auth : Core {
 	apr_array_header_t *providers;
 	id<AuthDelegate> delegate;
+	NSObject *delegateObject;
 }
+
 @property(nonatomic, assign) apr_array_header_t *providers;
 @property(nonatomic, assign) id<AuthDelegate> delegate;
+@property(retain) NSObject *delegateObject;
+
 - (id)initWithPool:(Pool *)aPool;
+
 @end
 

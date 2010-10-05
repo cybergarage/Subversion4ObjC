@@ -21,6 +21,11 @@
 	return self;	
 }
 
+- (id)init
+{
+	return [self initWithPool:[Pool sharedInstance]];
+}
+
 -(void)dealloc
 {
 	[super dealloc];

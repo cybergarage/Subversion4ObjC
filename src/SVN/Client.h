@@ -43,5 +43,6 @@
 - (id)initWithPool:(Pool *)aPool;
 - (BOOL)checkout;
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
+- (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse;
 
 @end

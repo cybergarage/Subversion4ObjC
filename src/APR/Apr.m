@@ -10,11 +10,12 @@
 
 #include <apr_general.h>
 
+static Apr *aprSharedInstance = nil;
+
 @implementation Apr
 
 + (Apr *)sharedInstance
 {
-	static Apr *aprSharedInstance = nil;
 	if (aprSharedInstance == nil)
 		aprSharedInstance = [[Apr alloc] init];
 	return aprSharedInstance;

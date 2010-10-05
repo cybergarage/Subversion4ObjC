@@ -82,9 +82,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 
 - (id)init
 {
-	if (!(self = [super initWithPool:[[[Pool alloc] init] autorelease]]))
-		return nil;
-	return self;
+	return [self initWithPool:[Pool sharedInstance]];
 }
 
 -(void)dealloc
@@ -104,10 +102,15 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	apr_hash_t *dirents;
 	svn_opt_revision_t revision;
 	
+	revision.kind = svn_opt_revision_head;
+	
 	svn_error_t *err = svn_client_ls (&dirents,
-						 [url UTF8String], &revision,
-						 recurse,
-						 [self ctx], [[self pool] pool]);
+						[url UTF8String], 
+						&revision,
+						recurse,
+						[self ctx], 
+						[[self pool] pool]);
+	
 	if (err ){
 		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
 		return NO;
@@ -123,6 +126,29 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	
 	[self setLists:listArray];
 		 
+	return YES;
+}
+
+- (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse
+{
+	svn_revnum_t 	result_rev;
+	svn_opt_revision_t revision;
+	 
+	revision.kind = svn_opt_revision_head;
+	
+	svn_error_t *err = svn_client_checkout(&result_rev,
+										   [url UTF8String], 
+										   [path UTF8String], 
+										   &revision,
+										   recurse,
+										   [self ctx], 
+										   [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		return NO;
+	}
+	
 	return YES;
 }
 

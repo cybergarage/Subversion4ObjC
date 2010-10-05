@@ -14,5 +14,6 @@
 	Pool	*pool;
 }
 @property(retain) Pool *pool;
+- (id)init;
 - (id)initWithPool:(Pool *)aPool;
 @end

@@ -27,6 +27,8 @@
 	Fs *fs;
 	id<ClientDelegate> delegate;
 	NSObject *delegateObject;
+	NSArray *lists;
+	NSString *errorMessage;
 }
 
 @property(nonatomic, assign) svn_client_ctx_t *ctx;
@@ -34,10 +36,12 @@
 @property(retain) Fs *fs;
 @property(nonatomic, assign) id<ClientDelegate> delegate;
 @property(retain) NSObject *delegateObject;
+@property(retain) NSArray *lists;
+@property(retain) NSString *errorMessage;
 
 - (id)init;
 - (id)initWithPool:(Pool *)aPool;
 - (BOOL)checkout;
-- (BOOL)ls:(NSString *)url;
+- (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 
 @end

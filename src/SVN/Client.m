@@ -22,6 +22,8 @@
 @synthesize fs;
 @synthesize delegate;
 @synthesize delegateObject;
+@synthesize lists;
+@synthesize errorMessage;
 
 static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, const char **tmp_file, const apr_array_header_t *commit_items, void *baton, apr_pool_t *pool);
 static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool);
@@ -97,33 +99,30 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	return YES;
 }
 
-- (BOOL)ls:(NSString *)url
+- (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 {
 	apr_hash_t *dirents;
 	svn_opt_revision_t revision;
 	
-	/* Main call into libsvn_client does all the work. */
 	svn_error_t *err = svn_client_ls (&dirents,
 						 [url UTF8String], &revision,
-						 FALSE, /* no recursion */
+						 recurse,
 						 [self ctx], [[self pool] pool]);
 	if (err ){
-		svn_handle_error2 (err, stderr, FALSE, "minimal_client: ");
+		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
 		return NO;
 	}
-	
-	/* Print the dir entries in the hash. */
+
+	NSMutableArray *listArray = [NSMutableArray array];
 	for (apr_hash_index_t *hi = apr_hash_first ([[self pool] pool], dirents); hi; hi = apr_hash_next (hi)){
 		const char *entryname;
 		svn_dirent_t *val;
-		
 		apr_hash_this (hi, (void *) &entryname, NULL, (void *) &val);
-		printf ("   %s\n", entryname);
-		
-		/* 'val' is actually an svn_dirent_t structure; a more complex
-		 program would mine it for extra printable information. */
+		[listArray addObject:[NSString stringWithUTF8String:entryname]];
 	}
 	
+	[self setLists:listArray];
+		 
 	return YES;
 }
 

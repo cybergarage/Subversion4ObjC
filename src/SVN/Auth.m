@@ -23,6 +23,16 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 									 svn_boolean_t may_save,
 									 apr_pool_t *pool);
 
+static svn_error_t *
+cg_svnobjc_auth_ssl_server_trust_prompt(
+										svn_auth_cred_ssl_server_trust_t **cred_p,
+										void *baton,
+										const char *realm,
+										apr_uint32_t failures,
+										const svn_auth_ssl_server_cert_info_t *cert_info,
+										svn_boolean_t may_save,
+										apr_pool_t *pool);
+
 @implementation AuthCred
 
 @synthesize username;
@@ -52,6 +62,12 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 		[self setProviders:apr_array_make ([[self pool] pool], 4, sizeof (svn_auth_provider_object_t *))];
 		
 		svn_auth_provider_object_t *provider;
+		
+		svn_auth_get_ssl_server_trust_prompt_provider (&provider,
+											   cg_svnobjc_auth_ssl_server_trust_prompt,
+											   self, /* baton */
+											   [[self pool] pool]);
+		APR_ARRAY_PUSH ([self providers], svn_auth_provider_object_t *) = provider;
 		
 		svn_auth_get_simple_prompt_provider(
 											&provider,
@@ -112,7 +128,7 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 /* A tiny callback function of type 'svn_auth_username_prompt_func_t'. For
  a much better example, see svn_cl__auth_username_prompt in the official
  svn cmdline client. */
- svn_error_t *
+static svn_error_t *
 cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
                              void *baton,
                              const char *realm,
@@ -133,6 +149,23 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred username] UTF8String]);
 	
 	[authCred release];
+	
+	return SVN_NO_ERROR;
+}
+
+static svn_error_t *
+cg_svnobjc_auth_ssl_server_trust_prompt
+(svn_auth_cred_ssl_server_trust_t **cred_p,
+ void *baton,
+ const char *realm,
+ apr_uint32_t failures,
+ const svn_auth_ssl_server_cert_info_t *cert_info,
+ svn_boolean_t may_save,
+ apr_pool_t *pool)
+{
+	*cred_p = apr_pcalloc(pool, sizeof(**cred_p));
+	(*cred_p)->may_save = FALSE;
+	(*cred_p)->accepted_failures = failures;
 	
 	return SVN_NO_ERROR;
 }

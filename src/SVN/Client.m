@@ -152,6 +152,28 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	return YES;
 }
 
+- (BOOL)update:(NSString *)path recurse:(BOOL)recurse
+{
+	svn_revnum_t 	result_rev;
+	svn_opt_revision_t revision;
+	
+	revision.kind = svn_opt_revision_head;
+	
+	svn_error_t *err = svn_client_update(&result_rev,
+										   [path UTF8String], 
+										   &revision,
+										   recurse,
+										   [self ctx], 
+										   [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		return NO;
+	}
+	
+	return YES;
+}
+
 @end
 
 static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, const char **tmp_file, const apr_array_header_t *commit_items, void *baton, apr_pool_t *pool)

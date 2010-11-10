@@ -1,5 +1,5 @@
 //
-//  Notify.h
+//  Progress.h
 //  iSubversion
 //
 //  Created by Satoshi Konno on 10/11/10.
@@ -8,8 +8,10 @@
 
 #import <SVN/Core.h>
 
-@interface Notify : Core {
+@interface Progress : Core {
 
 }
+@property(assign) int position;
+@property(assign) int total;
 - (id)init;
 @end

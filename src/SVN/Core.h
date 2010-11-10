@@ -11,9 +11,10 @@
 #import "SVN/Pool.h"
 
 @interface Core : NSObject {
-	Pool	*pool;
 }
 @property(retain) Pool *pool;
+@property(assign) const void *cObject;
 - (id)init;
 - (id)initWithPool:(Pool *)aPool;
+- (id)initWithCObject:(const void *)cObj;
 @end

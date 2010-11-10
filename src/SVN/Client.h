@@ -12,11 +12,15 @@
 #import <SVN/Auth.h>
 #import <SVN/Fs.h>
 #import <SVN/Notify.h>
+#import <SVN/Progress.h>
 
 #include <svn_client.h>
 
 @protocol ClientDelegate
+@optional
 - (BOOL)notify:(Notify *)notify object:(NSObject *)object;
+- (BOOL)progress:(Progress *)progress object:(NSObject *)object;
+- (BOOL)doCancel;
 @end
 
 @interface Client : Core {
@@ -41,7 +45,6 @@
 
 - (id)init;
 - (id)initWithPool:(Pool *)aPool;
-- (BOOL)checkout;
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 - (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)update:(NSString *)path recurse:(BOOL)recurse;

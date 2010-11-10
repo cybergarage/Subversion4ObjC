@@ -12,11 +12,20 @@
 @implementation Core
 
 @synthesize pool;
+@synthesize cObject;
 
 - (id)initWithPool:(Pool *)aPool
 {
 	if (self = [super init]) {
 		[self setPool:aPool];
+	}
+	return self;	
+}
+
+- (id)initWithCObject:(const void *)cObj;
+{
+	if (self = [super init]) {
+		[self setCObject:cObj];
 	}
 	return self;	
 }
@@ -30,6 +39,5 @@
 {
 	[super dealloc];
 }
-
 
 @end

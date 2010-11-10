@@ -90,13 +90,6 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	[super dealloc];
 }
 
-- (BOOL)checkout
-{
-	//Apr *apr = [Apr sharedInstance];
-	
-	return YES;
-}
-
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 {
 	apr_hash_t *dirents;
@@ -181,6 +174,23 @@ static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, cons
 	return SVN_NO_ERROR;
 }
 
+static svn_error_t* cg_svnobjc_cancel_func(void *baton)
+{
+	Client *client = (Client *)baton;
+	
+	if (![client delegate])
+		return SVN_NO_ERROR;
+	
+	if (![[client delegate] respondsToSelector:@selector(doCancel)])
+		return SVN_NO_ERROR;
+	
+	if ([[client delegate] doCancel])
+		return SVN_ERR_CANCELLED;
+	
+	return SVN_NO_ERROR;
+}
+
+
 static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *cnotify, apr_pool_t *pool)
 {
 	Client *client = (Client *)baton;
@@ -188,19 +198,30 @@ static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *cnoti
 	if (![client delegate])
 		return;
 	
-	Notify *notify = [[Notify alloc] initWithPool:[client pool]];
-	[notify setNotify:cnotify];
+	if (![[client delegate] respondsToSelector:@selector(notify:object:)])
+		return;
+	
+	Notify *notify = [[Notify alloc] initWithCObject:cnotify];
 	[[client delegate] notify:notify object:[client delegateObject]] ;
 	[notify release];
 }
 
 
-static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton)
-{
-	return SVN_NO_ERROR;
-}
-
 static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool)
 {
+	Client *client = (Client *)baton;
+	id<ClientDelegate> clientDelegate = [client delegate];
+	
+	if (clientDelegate == nil)
+		return;
+	
+	if (![clientDelegate respondsToSelector:@selector(progress:object:)])
+		return;
+	
+	Progress *progressInfo = [[Progress alloc] init];
+	[progressInfo setPosition:progress];
+	[progressInfo setTotal:total];
+	[[client delegate] progress:progressInfo object:[client delegateObject]] ;
+	[progressInfo release];
 }
 

@@ -16,7 +16,7 @@
 
 #include <svn_client.h>
 
-@protocol ClientDelegate
+@protocol ClientDelegate<NSObject>
 @optional
 - (BOOL)notify:(Notify *)notify object:(NSObject *)object;
 - (BOOL)progress:(Progress *)progress object:(NSObject *)object;

@@ -12,4 +12,5 @@
 
 }
 - (id)init;
+- (NSString *)path;
 @end

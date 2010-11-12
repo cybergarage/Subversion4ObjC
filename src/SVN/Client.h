@@ -18,8 +18,8 @@
 
 @protocol ClientDelegate<NSObject>
 @optional
-- (BOOL)notify:(Notify *)notify object:(NSObject *)object;
-- (BOOL)progress:(Progress *)progress object:(NSObject *)object;
+- (void)notify:(Notify *)notify object:(NSObject *)object;
+- (void)progress:(Progress *)progress object:(NSObject *)object;
 - (BOOL)doCancel;
 @end
 

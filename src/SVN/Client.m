@@ -185,7 +185,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *baton)
 		return SVN_NO_ERROR;
 	
 	if ([[client delegate] doCancel])
-		return SVN_ERR_CANCELLED;
+		return svn_error_create(SVN_ERR_CANCELLED, NULL, NULL);
 	
 	return SVN_NO_ERROR;
 }

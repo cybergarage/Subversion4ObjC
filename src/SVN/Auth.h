@@ -13,10 +13,10 @@
 #include <svn_auth.h>
 
 @interface AuthCred : NSObject {
-	NSString *username;
+	NSString *user;
 	NSString *password;
 }
-@property(retain) NSString *username;
+@property(retain) NSString *user;
 @property(retain) NSString *password;
 - (id)init;
 @end

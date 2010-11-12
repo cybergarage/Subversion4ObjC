@@ -35,13 +35,13 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 
 @implementation AuthCred
 
-@synthesize username;
+@synthesize user;
 @synthesize password;
 
 - (id)init
 {
 	if (self = [super init]) {
-		[self setUsername:@""];
+		[self setUser:@""];
 		[self setPassword:@""];
 	}
 	return self;	
@@ -106,7 +106,7 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	
 	AuthCred *authCred = [[AuthCred alloc] init];
 	if (username)
-		[authCred setUsername:[NSString stringWithUTF8String:username]];
+		[authCred setUser:[NSString stringWithUTF8String:username]];
 	
 	if (![[svnAuth delegate] simplePrompt:authCred object:[svnAuth delegateObject]]) {
 		[authCred release];
@@ -114,8 +114,8 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	}
 	
 	svn_auth_cred_simple_t *credRet = apr_pcalloc ([[svnAuth pool] pool], sizeof (*credRet));
-	if ([authCred username] != nil)
-		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred username] UTF8String]);
+	if ([authCred user] != nil)
+		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred user] UTF8String]);
 	if ([authCred password] != nil)
 		credRet->password = apr_pstrdup ([[svnAuth pool] pool],  [[authCred password] UTF8String]);
 
@@ -145,8 +145,8 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 	}
 	
 	svn_auth_cred_simple_t *credRet = apr_pcalloc ([[svnAuth pool] pool], sizeof (*credRet));
-	if ([authCred username] != nil)
-		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred username] UTF8String]);
+	if ([authCred user] != nil)
+		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred user] UTF8String]);
 	
 	[authCred release];
 	

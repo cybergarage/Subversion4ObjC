@@ -167,6 +167,24 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	return YES;
 }
 
+- (BOOL)unlock:(NSString *)path
+{
+	apr_array_header_t *targets = apr_array_make ([[self pool] pool], 1, sizeof (const char *));
+	APR_ARRAY_PUSH (targets, const char *) = [path UTF8String];
+	
+	svn_error_t *err = svn_client_unlock(targets,
+										 TRUE,
+										 [self ctx], 
+										 [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		return NO;
+	}
+	
+	return YES;
+}
+
 @end
 
 static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, const char **tmp_file, const apr_array_header_t *commit_items, void *baton, apr_pool_t *pool)

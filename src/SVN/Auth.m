@@ -47,6 +47,24 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 	return self;	
 }
 
+-(BOOL)hasUser
+{
+	if (user == nil)
+		return NO;
+	if ([user length] <= 0)
+		return NO;
+	return YES;
+}
+
+-(BOOL)hasPassword;
+{
+	if (password == nil)
+		return NO;
+	if ([password length] <= 0)
+		return NO;
+	return YES;
+}
+
 @end
 
 @implementation Auth

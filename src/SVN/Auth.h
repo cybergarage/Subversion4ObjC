@@ -19,6 +19,8 @@
 @property(retain) NSString *user;
 @property(retain) NSString *password;
 - (id)init;
+-(BOOL)hasUser;
+-(BOOL)hasPassword;
 @end
 
 @protocol AuthDelegate

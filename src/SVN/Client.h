@@ -48,5 +48,6 @@
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 - (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)update:(NSString *)path recurse:(BOOL)recurse;
+- (BOOL)cleanup:(NSString *)path;
 - (BOOL)unlock:(NSString *)path;
 @end

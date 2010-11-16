@@ -167,6 +167,21 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	return YES;
 }
 
+- (BOOL)cleanup:(NSString *)path
+{
+	svn_error_t *err = svn_client_cleanup(
+									  [path UTF8String], 
+									  [self ctx], 
+									  [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		return NO;
+	}
+	
+	return YES;
+}
+
 - (BOOL)unlock:(NSString *)path
 {
 	apr_array_header_t *targets = apr_array_make ([[self pool] pool], 1, sizeof (const char *));

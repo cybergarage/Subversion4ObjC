@@ -123,6 +123,7 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	}
 	
 	AuthCred *authCred = [[AuthCred alloc] init];
+	
 	if (username)
 		[authCred setUser:[NSString stringWithUTF8String:username]];
 	
@@ -131,14 +132,15 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 		return SVN_NO_ERROR;
 	}
 	
-	svn_auth_cred_simple_t *credRet = apr_pcalloc ([[svnAuth pool] pool], sizeof (*credRet));
+	svn_auth_cred_simple_t *credRet = apr_pcalloc (pool, sizeof (*credRet));
 	if ([authCred user] != nil)
-		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred user] UTF8String]);
+		credRet->username = apr_pstrdup (pool, [[authCred user] UTF8String]);
 	if ([authCred password] != nil)
-		credRet->password = apr_pstrdup ([[svnAuth pool] pool],  [[authCred password] UTF8String]);
+		credRet->password = apr_pstrdup (pool,  [[authCred password] UTF8String]);
 
 	[authCred release];
 	
+	*cred = credRet;
 	return SVN_NO_ERROR;
 }
 
@@ -162,12 +164,13 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 		return SVN_NO_ERROR;
 	}
 	
-	svn_auth_cred_simple_t *credRet = apr_pcalloc ([[svnAuth pool] pool], sizeof (*credRet));
+	svn_auth_cred_username_t *credRet = apr_pcalloc (pool, sizeof (*credRet));
 	if ([authCred user] != nil)
-		credRet->username = apr_pstrdup ([[svnAuth pool] pool], [[authCred user] UTF8String]);
+		credRet->username = apr_pstrdup (pool, [[authCred user] UTF8String]);
 	
 	[authCred release];
 	
+	*cred = credRet;
 	return SVN_NO_ERROR;
 }
 

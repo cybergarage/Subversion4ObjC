@@ -105,7 +105,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 						[[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
 		return NO;
 	}
 
@@ -138,7 +138,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 										   [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
 		return NO;
 	}
 	
@@ -160,7 +160,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 										   [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
 		return NO;
 	}
 	
@@ -175,7 +175,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 									  [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
 		return NO;
 	}
 	
@@ -193,7 +193,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:err->message]];
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
 		return NO;
 	}
 	

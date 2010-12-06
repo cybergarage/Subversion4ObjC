@@ -10,6 +10,7 @@
 
 #import <APR/Apr.h>
 #import <SVN/Pool.h>
+#import <SVN/Status.h>
 
 #include <svn_client.h>
 #include <svn_pools.h>
@@ -29,6 +30,7 @@ static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, cons
 static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool);
 static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *notify, apr_pool_t *pool);
 static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
+static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_t *status);
 
 - (id)initWithPool:(Pool *)aPool
 {
@@ -167,6 +169,35 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 	return YES;
 }
 
+- (NSArray *)status:(NSString *)path recurse:(BOOL)recurse
+{
+	svn_revnum_t 	result_rev;
+	svn_opt_revision_t revision;
+	
+	revision.kind = svn_opt_revision_head;
+	
+	NSMutableArray *statuses = [NSMutableArray array];
+	
+	svn_error_t *err = svn_client_status(&result_rev,
+										 [path UTF8String], 
+										 &revision,
+										 cg_svnobjc_status_func,
+										 statuses,
+										 recurse,
+										 YES,
+										 YES,
+										 YES,
+										 [self ctx], 
+										 [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return nil;
+	}
+	
+	return statuses;
+}
+
 - (BOOL)cleanup:(NSString *)path
 {
 	svn_error_t *err = svn_client_cleanup(
@@ -258,3 +289,12 @@ static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t tot
 	[progressInfo release];
 }
 
+/* A status callback function for printing STATUS for PATH. */
+static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_t *status)
+{
+	NSMutableArray *statuses = baton;
+	
+	Status *statusObj = [[Status alloc] initWithCObject:status]; 
+	[statuses addObject:statusObj];
+	[statusObj release];
+}

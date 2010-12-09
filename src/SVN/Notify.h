@@ -35,8 +35,8 @@ enum {
 @interface Notify : Core {
 
 }
+@property(retain) NSString *path;
 - (id)init;
-- (NSString *)path;
 - (NSString *)basename;
 - (int)actionType;
 - (long)revision;

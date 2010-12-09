@@ -31,6 +31,7 @@ static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t tot
 static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *notify, apr_pool_t *pool);
 static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_t *status);
+static svn_error_t* cg_svnobjc_info_receiver_func(void *baton, const char *path, const svn_info_t *info, apr_pool_t *pool);
 
 - (id)initWithPool:(Pool *)aPool
 {
@@ -92,6 +93,9 @@ static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_
 	[super dealloc];
 }
 
+#pragma mark -
+#pragma mark list
+
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 {
 	apr_hash_t *dirents;
@@ -124,6 +128,9 @@ static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_
 	return YES;
 }
 
+#pragma mark -
+#pragma mark checkout
+
 - (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse
 {
 	svn_revnum_t 	result_rev;
@@ -147,6 +154,9 @@ static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_
 	return YES;
 }
 
+#pragma mark -
+#pragma mark update
+
 - (BOOL)update:(NSString *)path recurse:(BOOL)recurse
 {
 	svn_revnum_t 	result_rev;
@@ -169,34 +179,180 @@ static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_
 	return YES;
 }
 
-- (NSArray *)status:(NSString *)path recurse:(BOOL)recurse
+#pragma mark -
+#pragma mark add
+
+- (BOOL)add:(NSString *)path recurse:(BOOL)recurse
+{
+	svn_error_t *err = svn_client_add([path UTF8String],
+									  recurse,
+									  [self ctx], 
+									  [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	return YES;
+}
+
+#pragma mark -
+#pragma mark commit
+
+- (BOOL)commit:(NSString *)path recurse:(BOOL)recurse
+{
+	svn_client_commit_info_t *commit_info = NULL;
+	apr_array_header_t *targets;
+
+	targets = apr_array_make([[self pool] pool], 0, sizeof(const char *));
+	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
+
+	svn_error_t *err = svn_client_commit(&commit_info,
+										 targets,
+										 !recurse,
+										 [self ctx], 
+										 [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	return YES;
+}
+
+#pragma mark -
+#pragma mark delete
+
+- (BOOL)remove:(NSString *)path force:(BOOL)force
+{
+	svn_client_commit_info_t *commit_info = NULL;
+	apr_array_header_t *targets;
+	
+	targets = apr_array_make([[self pool] pool], 0, sizeof(const char *));
+	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
+	
+	svn_error_t *err = svn_client_delete(&commit_info,
+										 targets,
+										 force,
+										 [self ctx], 
+										 [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	return YES;
+}
+
+#pragma mark -
+#pragma mark mkdir
+
+- (BOOL)mkdir:(NSString *)path
+{
+	svn_client_commit_info_t *commit_info = NULL;
+	apr_array_header_t *targets;
+	
+	targets = apr_array_make([[self pool] pool], 0, sizeof(const char *));
+	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
+	
+	svn_error_t *err = svn_client_mkdir(&commit_info,
+										 targets,
+										 [self ctx], 
+										 [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	return YES;
+}
+
+#pragma mark -
+#pragma mark status
+
+- (BOOL)status:(NSString *)path recurse:(BOOL)recurse
 {
 	svn_revnum_t 	result_rev;
 	svn_opt_revision_t revision;
 	
 	revision.kind = svn_opt_revision_head;
 	
-	NSMutableArray *statuses = [NSMutableArray array];
-	
 	svn_error_t *err = svn_client_status(&result_rev,
 										 [path UTF8String], 
 										 &revision,
 										 cg_svnobjc_status_func,
-										 statuses,
+										 self,
 										 recurse,
 										 YES,
-										 YES,
+										 NO, /*YES,*/
 										 YES,
 										 [self ctx], 
 										 [[self pool] pool]);
 	
 	if (err ){
 		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
-		return nil;
+		return NO;
 	}
 	
-	return statuses;
+	return YES;
 }
+
+#pragma mark -
+#pragma mark info
+
+- (BOOL)info:(NSString *)path recurse:(BOOL)recurse
+{
+	NSMutableArray *listArray = [NSMutableArray array];
+	
+	svn_error_t *err = svn_client_info([path UTF8String],
+										 NULL, 
+										 NULL,
+										 cg_svnobjc_info_receiver_func,
+										 listArray,
+										 recurse,
+										 [self ctx], 
+										 [[self pool] pool]);
+	
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	[self setLists:listArray];
+	
+	return YES;
+}
+
+#pragma mark -
+#pragma mark revert
+
+- (BOOL)revert:(NSString *)path recurse:(BOOL)recurse
+{
+	apr_array_header_t *targets;
+	
+	targets = apr_array_make([[self pool] pool], 0, sizeof(const char *));
+	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
+	
+	svn_error_t *err = svn_client_revert(targets,
+										 recurse,
+										[self ctx], 
+										[[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	return YES;
+}
+
+#pragma mark -
+#pragma mark cleanup
 
 - (BOOL)cleanup:(NSString *)path
 {
@@ -212,6 +368,9 @@ static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_
 	
 	return YES;
 }
+
+#pragma mark -
+#pragma mark unlock
 
 - (BOOL)unlock:(NSString *)path
 {
@@ -232,6 +391,9 @@ static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_
 }
 
 @end
+
+#pragma mark -
+#pragma mark callback funtions
 
 static svn_error_t* cg_svnobjc_client_get_commit_log3(const char **log_msg, const char **tmp_file, const apr_array_header_t *commit_items, void *baton, apr_pool_t *pool)
 {
@@ -289,12 +451,25 @@ static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t tot
 	[progressInfo release];
 }
 
-/* A status callback function for printing STATUS for PATH. */
 static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_t *status)
 {
-	NSMutableArray *statuses = baton;
+	Client *client = (Client *)baton;
+	id<ClientDelegate> clientDelegate = [client delegate];
 	
-	Status *statusObj = [[Status alloc] initWithCObject:status]; 
-	[statuses addObject:statusObj];
-	[statusObj release];
+	if (clientDelegate == nil)
+		return;
+	
+	if (![clientDelegate respondsToSelector:@selector(status:object:)])
+		return;
+	
+	Status *statusInfo = [[Status alloc] initWithCObject:status]; 
+	[statusInfo setPath:[NSString stringWithUTF8String:path]];
+	[[client delegate] status:statusInfo object:[client delegateObject]] ;
+	[statusInfo release];
+}
+
+
+static svn_error_t* cg_svnobjc_info_receiver_func(void *baton, const char *path, const svn_info_t *info, apr_pool_t *pool)
+{
+	return SVN_NO_ERROR;
 }

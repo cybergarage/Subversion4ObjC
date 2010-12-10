@@ -26,7 +26,6 @@ enum {
 	CGSvnStatusIncomplete,
 };
 
-
 @interface Status : Core {
 
 }

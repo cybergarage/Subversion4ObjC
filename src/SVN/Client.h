@@ -33,7 +33,7 @@
 	Fs *fs;
 	id<ClientDelegate> delegate;
 	NSObject *delegateObject;
-	NSArray *lists;
+	NSMutableArray *resultSet;
 	NSString *errorMessage;
 }
 
@@ -42,7 +42,7 @@
 @property(retain) Fs *fs;
 @property(nonatomic, assign) id<ClientDelegate> delegate;
 @property(retain) NSObject *delegateObject;
-@property(retain) NSArray *lists;
+@property(retain) NSMutableArray *resultSet;
 @property(retain) NSString *errorMessage;
 
 - (id)init;
@@ -51,11 +51,13 @@
 - (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)update:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)add:(NSString *)path recurse:(BOOL)recurse;
-- (BOOL)commit:(NSString *)path recurse:(BOOL)recurse;
+- (BOOL)commit:(NSString *)path message:(NSString *)message recurse:(BOOL)recurse;
 - (BOOL)remove:(NSString *)path force:(BOOL)force;
 - (BOOL)mkdir:(NSString *)path;
-- (BOOL)status:(NSString *)path recurse:(BOOL)recurse;
+- (BOOL)move:(NSString *)srcPath to:(NSString *)dstPath force:(BOOL)force;
+- (BOOL)status:(NSString *)path recurse:(BOOL)recurse update:(BOOL)update;
 - (BOOL)revert:(NSString *)path recurse:(BOOL)recurse;
+- (BOOL)resolved:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)cleanup:(NSString *)path;
 - (BOOL)unlock:(NSString *)path;
 

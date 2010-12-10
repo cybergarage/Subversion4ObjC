@@ -214,7 +214,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 	if ([modifiedFiles count] <= 0)
 		return YES;
 	
-	ctx->log_msg_baton = [message UTF8String];
+	ctx->log_msg_baton = (void *)[message UTF8String];
 	
 	svn_client_commit_info_t *commit_info = NULL;
 	apr_array_header_t *targets;

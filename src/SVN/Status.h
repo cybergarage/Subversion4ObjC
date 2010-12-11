@@ -30,6 +30,7 @@ enum {
 
 }
 @property(retain) NSString *path;
+- (NSString *)basename;
 - (int)textStatus;
 - (int)propStatus;
 @end

@@ -33,6 +33,16 @@
 		free(statusObj);
 }
 
+- (NSString *)basename
+{
+	if ([self path] == nil)
+		return @"";
+	NSArray *filenames = [[self path] componentsSeparatedByString:@"/"];
+	if ([filenames count] <= 0)
+		return @"";
+	return [filenames objectAtIndex:([filenames count] - 1)];
+}
+
 - (int)statusKindFrom:(int)statusKind
 {
 	switch (statusKind) {
@@ -72,12 +82,16 @@
 - (int)textStatus
 {
 	svn_wc_status_t *statusObj = (svn_wc_status_t *)[self cObject];
+	if (!statusObj)
+		return CGSvnStatusUnknown;
 	return [self statusKindFrom:statusObj->text_status];
 }
 
 - (int)propStatus
 {
 	svn_wc_status_t *statusObj = (svn_wc_status_t *)[self cObject];
+	if (!statusObj)
+		return CGSvnStatusUnknown;
 	return [self statusKindFrom:statusObj->prop_status];
 }
 

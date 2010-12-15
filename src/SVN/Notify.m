@@ -11,8 +11,6 @@
 
 @implementation Notify
 
-@synthesize path;
-
 - (id)init
 {
 	if (self = [super init]) {
@@ -20,11 +18,20 @@
 	return self;	
 }
 
+- (NSString *)path
+{
+	svn_wc_notify_t *notifyObj = (svn_wc_notify_t *)[self cObject];
+	if (notifyObj->path == NULL)
+		return nil;
+	return [NSString stringWithUTF8String:notifyObj->path];
+}
+
 - (NSString *)basename
 {
-	if ([self path] == nil)
+	NSString *url = [self path];
+	if (url == nil)
 		return @"";
-	NSArray *filenames = [[self path] componentsSeparatedByString:@"/"];
+	NSArray *filenames = [url componentsSeparatedByString:@"/"];
 	if ([filenames count] <= 0)
 		return @"";
 	return [filenames objectAtIndex:([filenames count] - 1)];

@@ -40,4 +40,5 @@ enum {
 - (NSString *)basename;
 - (int)actionType;
 - (long)revision;
+- (NSString *)shortMessage;
 @end

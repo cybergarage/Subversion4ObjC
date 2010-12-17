@@ -94,4 +94,35 @@
 	return notifyObj->revision;
 }
 
+- (NSString *)shortMessage
+{
+	NSString *basename = [self basename];
+	if (basename == nil)
+		return @"";
+	
+	NSString *notifyMsg = @"";
+	
+	switch ([self actionType]) {
+		case CGSvnNotifyActionUpdateDelete:
+		case CGSvnNotifyActionCommitDeleted:
+			notifyMsg = [NSString stringWithFormat:@"D:%@", basename];
+			break;
+		case CGSvnNotifyActionUpdateAdd:
+		case CGSvnNotifyActionCommitAdded:
+			notifyMsg = [NSString stringWithFormat:@"A:%@", basename];
+			break;
+		case CGSvnNotifyActionUpdateUpdate:
+			notifyMsg = [NSString stringWithFormat:@"U:%@", basename];
+			break;
+		case CGSvnNotifyActionCommitModified:
+			notifyMsg = [NSString stringWithFormat:@"M:%@", basename];
+			break;
+		case CGSvnNotifyActionCommitReplaced:
+			notifyMsg = [NSString stringWithFormat:@"R:%@", basename];
+			break;
+	}
+	
+	return notifyMsg;
+}
+
 @end

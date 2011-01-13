@@ -3,7 +3,7 @@
 //  iSubversion
 //
 //  Created by Satoshi Konno on 10/12/06.
-//  Copyright 2010 Yahoo Japan Corporation. All rights reserved.
+//  Copyright 2010 Satoshi Konno. All rights reserved.
 //
 
 #import <SVN/Core.h>

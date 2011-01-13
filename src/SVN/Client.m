@@ -273,7 +273,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 	
 	targets = apr_array_make([[self pool] pool], 1, sizeof(const char *));
 	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
-	
+
 	svn_error_t *err = svn_client_mkdir(&commit_info,
 										 targets,
 										 [self ctx], 

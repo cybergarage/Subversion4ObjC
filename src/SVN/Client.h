@@ -55,6 +55,7 @@
 - (BOOL)remove:(NSString *)path force:(BOOL)force;
 - (BOOL)mkdir:(NSString *)path;
 - (BOOL)move:(NSString *)srcPath to:(NSString *)dstPath force:(BOOL)force;
+- (BOOL)copy:(NSString *)srcPath to:(NSString *)dstPath;
 - (BOOL)status:(NSString *)path recurse:(BOOL)recurse update:(BOOL)update;
 - (BOOL)revert:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)resolved:(NSString *)path recurse:(BOOL)recurse;

@@ -314,6 +314,31 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 }
 
 #pragma mark -
+#pragma mark copy
+
+- (BOOL)copy:(NSString *)srcPath to:(NSString *)dstPath
+{
+	svn_client_commit_info_t *commit_info = NULL;
+	svn_opt_revision_t revision;
+	
+	revision.kind = svn_opt_revision_unspecified;
+	
+	svn_error_t *err = svn_client_copy(&commit_info,
+									   [srcPath UTF8String], 
+									   &revision,
+									   [dstPath UTF8String], 
+									   [self ctx], 
+									   [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		return NO;
+	}
+	
+	return YES;
+}
+
+#pragma mark -
 #pragma mark resolved
 
 - (BOOL)resolved:(NSString *)path recurse:(BOOL)recurse

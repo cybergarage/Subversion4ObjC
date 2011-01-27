@@ -18,6 +18,7 @@
 }
 @property(retain) NSString *user;
 @property(retain) NSString *password;
+@property(retain) NSString *realm;
 - (id)init;
 -(BOOL)hasUser;
 -(BOOL)hasPassword;

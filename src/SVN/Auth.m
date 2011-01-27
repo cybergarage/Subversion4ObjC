@@ -37,12 +37,14 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 
 @synthesize user;
 @synthesize password;
+@synthesize realm;
 
 - (id)init
 {
 	if (self = [super init]) {
 		[self setUser:@""];
 		[self setPassword:@""];
+		[self setRealm:@""];
 	}
 	return self;	
 }
@@ -124,6 +126,9 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	
 	AuthCred *authCred = [[AuthCred alloc] init];
 	
+	if (realm)
+		[authCred setUser:[NSString stringWithUTF8String:realm]];
+	
 	if (username)
 		[authCred setUser:[NSString stringWithUTF8String:username]];
 	
@@ -158,6 +163,9 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 	Auth *svnAuth = (Auth *)baton;
 	
 	AuthCred *authCred = [[AuthCred alloc] init];
+	
+	if (realm)
+		[authCred setUser:[NSString stringWithUTF8String:realm]];
 	
 	if (![[svnAuth delegate] usernamePrompt:authCred object:[svnAuth delegateObject]]) {
 		[authCred release];

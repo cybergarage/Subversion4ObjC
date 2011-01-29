@@ -127,9 +127,9 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	AuthCred *authCred = [[AuthCred alloc] init];
 	
 	if (realm)
-		[authCred setUser:[NSString stringWithUTF8String:realm]];
+		[authCred setRealm:[NSString stringWithUTF8String:realm]];
 	
-	if (username)
+	 if (username)
 		[authCred setUser:[NSString stringWithUTF8String:username]];
 	
 	if (![[svnAuth delegate] simplePrompt:authCred object:[svnAuth delegateObject]]) {
@@ -165,8 +165,8 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 	AuthCred *authCred = [[AuthCred alloc] init];
 	
 	if (realm)
-		[authCred setUser:[NSString stringWithUTF8String:realm]];
-	
+		[authCred setRealm:[NSString stringWithUTF8String:realm]];
+
 	if (![[svnAuth delegate] usernamePrompt:authCred object:[svnAuth delegateObject]]) {
 		[authCred release];
 		return SVN_NO_ERROR;

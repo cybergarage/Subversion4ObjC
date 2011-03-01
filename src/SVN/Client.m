@@ -96,6 +96,27 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 #pragma mark -
 #pragma mark list
 
+- (void)errorMessage:(svn_error_t *)err buffer:(NSMutableString *)buffer
+{
+	if (err->message)
+		[buffer appendString:[NSString stringWithUTF8String:err->message]];
+		 
+	if (err->child) {
+		[buffer appendString:@"\n"];
+		[self errorMessage:err->child buffer:buffer];
+	}
+}
+
+- (NSMutableString *)errorMessage:(svn_error_t *)err
+{
+	NSMutableString *errMessage = [NSMutableString string];
+	[self errorMessage:err buffer:errMessage];
+	return errMessage;
+}
+
+#pragma mark -
+#pragma mark list
+
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 {
 	apr_hash_t *dirents;
@@ -111,7 +132,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 						[[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 
@@ -147,7 +168,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										   [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -172,7 +193,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										   [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -190,7 +211,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 									  [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -230,7 +251,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		NSLog(@"%@", [self errorMessage]);
 		return NO;
 	}
@@ -256,7 +277,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -280,7 +301,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -306,7 +327,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -331,7 +352,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 									   [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -350,7 +371,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										   [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -383,7 +404,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -408,7 +429,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 	
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -433,7 +454,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										[[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -451,7 +472,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 									  [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	
@@ -472,7 +493,7 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 										 [[self pool] pool]);
 	
 	if (err ){
-		[self setErrorMessage:[NSString stringWithUTF8String:(err->message) ? err->message : ""]];
+		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 	

@@ -7,7 +7,7 @@
 //
 
 #import <SVN/Pool.h>
-#import <Apr/Apr.h>
+#import <APR/Apr.h>
 
 static Pool *poolSharedInstance = nil;
 
@@ -24,7 +24,7 @@ static Pool *poolSharedInstance = nil;
 
 - (id)initWithPool:(Pool *)aPool;
 {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		[Apr sharedInstance];	
 		pool = svn_pool_create([aPool pool]);
 	}
@@ -33,7 +33,7 @@ static Pool *poolSharedInstance = nil;
 
 -(id)init
 {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		[Apr sharedInstance];	
 		pool = svn_pool_create(NULL);
 	}

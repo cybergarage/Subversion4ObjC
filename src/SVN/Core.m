@@ -16,7 +16,7 @@
 
 - (id)initWithPool:(Pool *)aPool
 {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		[self setPool:aPool];
 	}
 	return self;	
@@ -24,7 +24,7 @@
 
 - (id)initWithCObject:(const void *)cObj;
 {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		[self setCObject:cObj];
 	}
 	return self;	

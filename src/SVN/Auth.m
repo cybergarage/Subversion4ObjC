@@ -41,7 +41,7 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 
 - (id)init
 {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		[self setUser:@""];
 		[self setPassword:@""];
 		[self setRealm:@""];

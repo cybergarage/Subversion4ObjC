@@ -23,7 +23,7 @@ static Apr *aprSharedInstance = nil;
 
 - (id)init;
 {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		apr_status_t aprErr = apr_initialize();
 		if (aprErr) {
 			[self release];

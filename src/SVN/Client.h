@@ -14,6 +14,7 @@
 #import <SVN/Notify.h>
 #import <SVN/Progress.h>
 #import <SVN/Status.h>
+#import <SVN/Log.h>
 
 #include <svn_client.h>
 
@@ -22,6 +23,7 @@
 - (void)notify:(Notify *)notify object:(NSObject *)object;
 - (void)progress:(Progress *)progress object:(NSObject *)object;
 - (void)status:(Status *)status object:(NSObject *)object;
+- (void)log:(Log *)log object:(NSObject *)object;
 - (BOOL)doCancel;
 @end
 
@@ -61,5 +63,6 @@
 - (BOOL)resolved:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)cleanup:(NSString *)path;
 - (BOOL)unlock:(NSString *)path;
+- (BOOL)log:(NSString *)path;
 
 @end

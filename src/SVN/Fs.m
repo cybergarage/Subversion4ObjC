@@ -14,7 +14,7 @@
 
 - (id)initWithPool:(Pool *)aPool
 {
-	if (self = [super initWithPool:aPool]) {
+	if ((self = [super initWithPool:aPool])) {
 		svn_error_t *svnErr = svn_fs_initialize([[self pool] pool]);
 		if (svnErr) {
 			[self release];

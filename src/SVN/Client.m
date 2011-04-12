@@ -32,6 +32,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *cancel_baton);
 static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_t *status);
 static svn_error_t* cg_svnobjc_info_receiver_func(void *baton, const char *path, const svn_info_t *info, apr_pool_t *pool);
 static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **tmp_file,  apr_array_header_t *commit_items, void *baton, apr_pool_t *pool);
+static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *changed_paths, svn_revnum_t revision, const char *author, const char *date,const char *message, apr_pool_t *pool);
 
 - (id)initWithPool:(Pool *)aPool
 {
@@ -500,6 +501,39 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 	return YES;
 }
 
+#pragma mark -
+#pragma mark log
+
+- (BOOL)log:(NSString *)path 
+{
+	apr_array_header_t *targets;
+	
+	targets = apr_array_make([[self pool] pool], 1, sizeof(const char *));
+	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
+	
+	svn_opt_revision_t startRev;
+	startRev.kind = svn_opt_revision_head;
+    
+	svn_opt_revision_t endRev;
+    
+	svn_error_t *err = svn_client_log(targets,
+                                      &startRev,
+                                      &endRev,
+                                      NO,
+                                      NO,
+                                      cg_svnobjc_log_receiver_func,
+                                      self,
+                                      [self ctx], 
+                                      [[self pool] pool]);
+	
+	if (err ){
+		[self setErrorMessage:[self errorMessage:err]];
+		return NO;
+	}
+	
+	return YES;
+}
+
 @end
 
 #pragma mark -
@@ -584,5 +618,27 @@ static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **
 
 static svn_error_t* cg_svnobjc_info_receiver_func(void *baton, const char *path, const svn_info_t *info, apr_pool_t *pool)
 {
+	return SVN_NO_ERROR;
+}
+
+static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *changed_paths, svn_revnum_t revision, const char *author, const char *date,const char *message, apr_pool_t *pool)
+{
+	Client *client = (Client *)baton;
+	id<ClientDelegate> clientDelegate = [client delegate];
+	
+	if (clientDelegate == nil)
+		return SVN_NO_ERROR;
+	
+	if (![clientDelegate respondsToSelector:@selector(log:object:)])
+		return SVN_NO_ERROR;
+	
+	Log *logInfo = [[Log alloc] init];
+    [logInfo setRevision:revision];
+    [logInfo setAuthor:[NSString stringWithUTF8String:author]];
+    [logInfo setDate:[NSString stringWithUTF8String:date]];
+    [logInfo setMessage:[NSString stringWithUTF8String:message]];
+	[[client delegate] log:logInfo object:[client delegateObject]];
+	[logInfo release];
+    
 	return SVN_NO_ERROR;
 }

@@ -49,6 +49,15 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 	return self;	
 }
 
+-(void)dealloc
+{
+    self.user = nil;
+    self.password = nil;
+    self.realm = nil;
+    
+	[super dealloc];
+}
+
 -(BOOL)hasUser
 {
 	if (user == nil)
@@ -77,7 +86,7 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 
 - (id)initWithPool:(Pool *)aPool
 {
-	if (self = [super initWithPool:aPool]) {
+	if ((self = [super initWithPool:aPool])) {
 		
 		[self setProviders:apr_array_make ([[self pool] pool], 4, sizeof (svn_auth_provider_object_t *))];
 		
@@ -106,6 +115,11 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 		APR_ARRAY_PUSH ([self providers], svn_auth_provider_object_t *) = provider;
 	}
 	return self;	
+}
+
+-(void)dealloc
+{
+	[super dealloc];
 }
 
 @end

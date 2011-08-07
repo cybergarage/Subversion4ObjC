@@ -16,4 +16,13 @@
 @synthesize date;
 @synthesize message;
 
+-(void)dealloc
+{
+    self.author = nil;
+    self.date = nil;
+    self.message = nil;
+    
+	[super dealloc];
+}
+
 @end

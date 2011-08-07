@@ -13,8 +13,6 @@
 #include <svn_auth.h>
 
 @interface AuthCred : NSObject {
-	NSString *user;
-	NSString *password;
 }
 @property(retain) NSString *user;
 @property(retain) NSString *password;
@@ -30,14 +28,11 @@
 @end
 
 @interface Auth : Core {
-	apr_array_header_t *providers;
-	id<AuthDelegate> delegate;
-	NSObject *delegateObject;
 }
 
 @property(nonatomic, assign) apr_array_header_t *providers;
 @property(nonatomic, assign) id<AuthDelegate> delegate;
-@property(retain) NSObject *delegateObject;
+@property(assign) NSObject *delegateObject;
 
 - (id)initWithPool:(Pool *)aPool;
 

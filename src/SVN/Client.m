@@ -76,7 +76,6 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	
 	[self setAuth:[[[Auth alloc] initWithPool:aPool] autorelease]];
 	if (![self auth]) {
-		[self release];
 		return nil;
 	}	
 	svn_auth_open (&ctx->auth_baton, [[self auth] providers], [[self pool] pool]);
@@ -86,11 +85,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 
 - (id)init
 {
-	return [self initWithPool:[Pool sharedInstance]];
+	return [self initWithPool:[[[Pool alloc] init] autorelease]];
 }
 
 -(void)dealloc
 {
+    self.auth = nil;
+    self.fs = nil;
+    self.delegate = nil;
+    self.delegateObject = nil;
+    self.resultSet = nil;
+    self.errorMessage = nil;
+    
 	[super dealloc];
 }
 

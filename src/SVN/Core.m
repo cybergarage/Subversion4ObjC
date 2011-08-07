@@ -32,11 +32,13 @@
 
 - (id)init
 {
-	return [self initWithPool:[Pool sharedInstance]];
+	return [self initWithPool:[[[Pool alloc] init] autorelease]];
 }
 
 -(void)dealloc
 {
+    self.pool = nil;
+    
 	[super dealloc];
 }
 

@@ -28,17 +28,7 @@
 @end
 
 @interface Client : Core {
-@private
-	svn_client_ctx_t *ctx;
-@public
-	Auth *auth;
-	Fs *fs;
-	id<ClientDelegate> delegate;
-	NSObject *delegateObject;
-	NSMutableArray *resultSet;
-	NSString *errorMessage;
 }
-
 @property(nonatomic, assign) svn_client_ctx_t *ctx;
 @property(retain) Auth *auth;
 @property(retain) Fs *fs;

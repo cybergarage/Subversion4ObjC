@@ -9,18 +9,9 @@
 #import <SVN/Pool.h>
 #import <APR/Apr.h>
 
-static Pool *poolSharedInstance = nil;
-
 @implementation Pool
 
 @synthesize pool;
-
-+ (Pool *)sharedInstance
-{
-	if (poolSharedInstance == nil)
-		poolSharedInstance = [[Pool alloc] init];
-	return poolSharedInstance;
-}
 
 - (id)initWithPool:(Pool *)aPool;
 {
@@ -42,8 +33,9 @@ static Pool *poolSharedInstance = nil;
 
 -(void)dealloc
 {
-	[super dealloc];
 	svn_pool_destroy([self pool]);
+    
+	[super dealloc];
 }
 
 @end

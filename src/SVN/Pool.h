@@ -14,7 +14,6 @@
 	apr_pool_t *pool;
 }
 @property(assign) apr_pool_t *pool;
-+ (Pool *)sharedInstance;
 -(id)init;
 - (id)initWithPool:(Pool *)aPool;
 @end

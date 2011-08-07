@@ -15,7 +15,7 @@
 
 - (id)initWithCObject:(const void *)cObj
 {
-	if (self = [super initWithCObject:cObj]) {
+	if ((self = [super initWithCObject:cObj])) {
 		svn_wc_status_t *statusObj = (svn_wc_status_t *)[self cObject];
 		svn_wc_status_t *statusCopyObj = malloc(sizeof(svn_wc_status_t));
 		*statusCopyObj = *statusObj;
@@ -26,11 +26,13 @@
 
 -(void)dealloc
 {
-	[super dealloc];
-
+    self.path = nil;
+    
 	svn_wc_status_t *statusObj = (svn_wc_status_t *)[self cObject];
 	if (statusObj)
 		free(statusObj);
+
+	[super dealloc];
 }
 
 - (NSString *)basename

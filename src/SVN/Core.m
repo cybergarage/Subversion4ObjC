@@ -32,7 +32,11 @@
 
 - (id)init
 {
-	return [self initWithPool:[[[Pool alloc] init] autorelease]];
+    Pool *aPool = [[Pool alloc] init];
+	if ((self = [self initWithPool:aPool])) {
+	}
+    [aPool release];
+	return self;	
 }
 
 -(void)dealloc

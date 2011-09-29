@@ -6,14 +6,15 @@
 //  Copyright 2010 Satoshi Konno. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <SVN/Core.h>
 
 #include <svn_pools.h>
 
-@interface Pool : NSObject {
+@interface Pool : Core {
 	apr_pool_t *pool;
 }
 @property(assign) apr_pool_t *pool;
--(id)init;
+- (id)init;
 - (id)initWithPool:(Pool *)aPool;
+- (void)clear;
 @end

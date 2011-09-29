@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <SVN/Core.h>
+#import <SVN/Pool.h>
 
 #include <svn_auth.h>
 
@@ -27,14 +27,14 @@
 - (BOOL)usernamePrompt:(AuthCred *)authCred object:(NSObject *)object;
 @end
 
-@interface Auth : Core {
+@interface Auth : Pool {
 }
 
 @property(nonatomic, assign) apr_array_header_t *providers;
 @property(nonatomic, assign) id<AuthDelegate> delegate;
 @property(assign) NSObject *delegateObject;
 
-- (id)initWithPool:(Pool *)aPool;
+- (id)init;
 
 @end
 

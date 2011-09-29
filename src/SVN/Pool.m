@@ -13,27 +13,35 @@
 
 @synthesize pool;
 
-- (id)initWithPool:(Pool *)aPool;
-{
-	if ((self = [super init])) {
-		[Apr sharedInstance];	
-		pool = svn_pool_create([aPool pool]);
-	}
-	return self;
-}
-
 -(id)init
 {
 	if ((self = [super init])) {
 		[Apr sharedInstance];	
-		pool = svn_pool_create(NULL);
+		self.pool = svn_pool_create(NULL);
 	}
 	return self;
 }
 
+- (id)initWithPool:(Pool *)aPool
+{
+	if ((self = [super init])) {
+		[Apr sharedInstance];	
+		self.pool = svn_pool_create([aPool pool]);
+	}
+	return self;
+}
+
+- (void)clear
+{
+    svn_pool_clear(self.pool);
+}
+
 -(void)dealloc
 {
-	svn_pool_destroy([self pool]);
+    if (self.pool) {
+        svn_pool_destroy(self.pool);
+        self.pool = nil;
+    }
     
 	[super dealloc];
 }

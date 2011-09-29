@@ -11,16 +11,7 @@
 
 @implementation Core
 
-@synthesize pool;
 @synthesize cObject;
-
-- (id)initWithPool:(Pool *)aPool
-{
-	if ((self = [super init])) {
-		[self setPool:aPool];
-	}
-	return self;	
-}
 
 - (id)initWithCObject:(const void *)cObj;
 {
@@ -32,17 +23,13 @@
 
 - (id)init
 {
-    Pool *aPool = [[Pool alloc] init];
-	if ((self = [self initWithPool:aPool])) {
+	if ((self = [super init])) {
 	}
-    [aPool release];
 	return self;	
 }
 
 -(void)dealloc
 {
-    self.pool = nil;
-    
 	[super dealloc];
 }
 

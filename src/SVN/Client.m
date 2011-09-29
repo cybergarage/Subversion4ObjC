@@ -20,7 +20,6 @@
 
 @synthesize ctx;
 @synthesize auth;
-@synthesize fs;
 @synthesize delegate;
 @synthesize delegateObject;
 @synthesize resultSet;
@@ -34,30 +33,24 @@ static svn_error_t* cg_svnobjc_info_receiver_func(void *baton, const char *path,
 static svn_error_t * cg_svnobjc_log_msg_func(const char **log_msg, const char **tmp_file,  apr_array_header_t *commit_items, void *baton, apr_pool_t *pool);
 static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *changed_paths, svn_revnum_t revision, const char *author, const char *date,const char *message, apr_pool_t *pool);
 
-- (id)initWithPool:(Pool *)aPool
+- (id)init
 {
+	if (!(self = [super init]))
+		return nil;
+	
 	svn_error_t *err;
-	
-	if (!(self = [super initWithPool:aPool]))
-		return nil;
-	
-	if ((err = svn_config_ensure (NULL, [[self pool] pool]))) {
+    
+	if ((err = svn_config_ensure (NULL, [self pool]))) {
 		[self release];
 		return nil;
 	}
 	
-	[self setFs:[[[Fs alloc] initWithPool:aPool] autorelease]];
-	if (![self fs]) {
+	if ((err = svn_client_create_context(&ctx, [self pool]))) {
 		[self release];
 		return nil;
 	}
 	
-	if ((err = svn_client_create_context(&ctx, [[self pool] pool]))) {
-		[self release];
-		return nil;
-	}
-	
-	if ((err = svn_config_get_config (&(ctx->config), NULL, [[self pool] pool]))) {
+	if ((err = svn_config_get_config (&(ctx->config), NULL, [self pool]))) {
 		[self release];
 		return nil;
 	}
@@ -74,24 +67,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	ctx->progress_func = cg_svnobjc_ra_progress_notify_func;
 	ctx->progress_baton = self;
 	
-	[self setAuth:[[[Auth alloc] initWithPool:aPool] autorelease]];
+	[self setAuth:[[[Auth alloc] init] autorelease]];
 	if (![self auth]) {
 		return nil;
 	}	
-	svn_auth_open (&ctx->auth_baton, [[self auth] providers], [[self pool] pool]);
+	svn_auth_open (&ctx->auth_baton, [[self auth] providers], [self pool]);
 
 	return self;	
-}
-
-- (id)init
-{
-	return [self initWithPool:[[[Pool alloc] init] autorelease]];
 }
 
 -(void)dealloc
 {
     self.auth = nil;
-    self.fs = nil;
     self.delegate = nil;
     self.delegateObject = nil;
     self.resultSet = nil;
@@ -131,20 +118,24 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	
 	revision.kind = svn_opt_revision_head;
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+
 	svn_error_t *err = svn_client_ls (&dirents,
 						[url UTF8String], 
 						&revision,
 						recurse,
 						[self ctx], 
-						[[self pool] pool]);
+						[subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
 	}
 
 	NSMutableArray *listArray = [NSMutableArray array];
-	for (apr_hash_index_t *hi = apr_hash_first ([[self pool] pool], dirents); hi; hi = apr_hash_next (hi)){
+	for (apr_hash_index_t *hi = apr_hash_first ([self pool], dirents); hi; hi = apr_hash_next (hi)){
 		const char *entryname;
 		svn_dirent_t *val;
 		apr_hash_this (hi, (void *) &entryname, NULL, (void *) &val);
@@ -166,14 +157,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	 
 	revision.kind = svn_opt_revision_head;
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_checkout(&result_rev,
 										   [url UTF8String], 
 										   [path UTF8String], 
 										   &revision,
 										   recurse,
 										   [self ctx], 
-										   [[self pool] pool]);
+										   [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -192,13 +187,17 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	
 	revision.kind = svn_opt_revision_head;
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_update(&result_rev,
 										   [path UTF8String], 
 										   &revision,
 										   recurse,
 										   [self ctx], 
-										   [[self pool] pool]);
+										   [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -212,11 +211,15 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 
 - (BOOL)add:(NSString *)path recurse:(BOOL)recurse
 {
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_add([path UTF8String],
 									  recurse,
 									  [self ctx], 
-									  [[self pool] pool]);
+									  [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -247,16 +250,20 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	svn_client_commit_info_t *commit_info = NULL;
 	apr_array_header_t *targets;
 
-	targets = apr_array_make([[self pool] pool], [modifiedFiles count], sizeof(const char *));
+	targets = apr_array_make([self pool], [modifiedFiles count], sizeof(const char *));
 	for (Status *status in modifiedFiles)
 		APR_ARRAY_PUSH(targets, const char *) = [[status path] UTF8String];
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_commit(&commit_info,
 										 targets,
 										 NO,
 										 [self ctx], 
-										 [[self pool] pool]);
+										 [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		NSLog(@"%@", [self errorMessage]);
@@ -274,15 +281,19 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	svn_client_commit_info_t *commit_info = NULL;
 	apr_array_header_t *targets;
 	
-	targets = apr_array_make([[self pool] pool], 1, sizeof(const char *));
+	targets = apr_array_make([self pool], 1, sizeof(const char *));
 	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_delete(&commit_info,
 										 targets,
 										 force,
 										 [self ctx], 
-										 [[self pool] pool]);
+										 [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -299,14 +310,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	svn_client_commit_info_t *commit_info = NULL;
 	apr_array_header_t *targets;
 	
-	targets = apr_array_make([[self pool] pool], 1, sizeof(const char *));
+	targets = apr_array_make([self pool], 1, sizeof(const char *));
 	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
 
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_mkdir(&commit_info,
 										 targets,
 										 [self ctx], 
-										 [[self pool] pool]);
+										 [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -325,14 +340,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	
 	revision.kind = svn_opt_revision_unspecified;
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_move(&commit_info,
 										 [srcPath UTF8String], 
 										 &revision,
 										 [dstPath UTF8String], 
 										 force,
 										 [self ctx], 
-										 [[self pool] pool]);
-	
+										 [subpool pool]);
+
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -351,13 +370,17 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	
 	revision.kind = svn_opt_revision_unspecified;
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_copy(&commit_info,
 									   [srcPath UTF8String], 
 									   &revision,
 									   [dstPath UTF8String], 
 									   [self ctx], 
-									   [[self pool] pool]);
+									   [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -371,12 +394,16 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 
 - (BOOL)resolved:(NSString *)path recurse:(BOOL)recurse
 {
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_resolved(
 										   [path UTF8String], 
 										   recurse,
 										   [self ctx], 
-										   [[self pool] pool]);
+										   [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -398,6 +425,8 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	NSMutableArray *statusList = [NSMutableArray array];
 	[self setResultSet:statusList];
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_status(&result_rev,
 										 [path UTF8String], 
 										 &revision,
@@ -408,8 +437,10 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 										 update,
 										 YES,
 										 [self ctx], 
-										 [[self pool] pool]);
-	
+										 [subpool pool]);
+
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -425,6 +456,8 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 {
 	NSMutableArray *listArray = [NSMutableArray array];
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_info([path UTF8String],
 										 NULL, 
 										 NULL,
@@ -432,8 +465,9 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 										 listArray,
 										 recurse,
 										 [self ctx], 
-										 [[self pool] pool]);
+										 [subpool pool]);
 	
+    [subpool release];
 	
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
@@ -452,14 +486,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 {
 	apr_array_header_t *targets;
 	
-	targets = apr_array_make([[self pool] pool], 1, sizeof(const char *));
+	targets = apr_array_make([self pool], 1, sizeof(const char *));
 	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_revert(targets,
 										 recurse,
 										[self ctx], 
-										[[self pool] pool]);
+										[subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -473,11 +511,15 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 
 - (BOOL)cleanup:(NSString *)path
 {
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_cleanup(
 									  [path UTF8String], 
 									  [self ctx], 
-									  [[self pool] pool]);
+									  [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -491,14 +533,18 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 
 - (BOOL)unlock:(NSString *)path
 {
-	apr_array_header_t *targets = apr_array_make ([[self pool] pool], 1, sizeof (const char *));
+	apr_array_header_t *targets = apr_array_make ([self pool], 1, sizeof (const char *));
 	APR_ARRAY_PUSH (targets, const char *) = [path UTF8String];
 	
+    Pool *subpool = [[Pool alloc] initWithPool:self];
+    
 	svn_error_t *err = svn_client_unlock(targets,
 										 TRUE,
 										 [self ctx], 
-										 [[self pool] pool]);
+										 [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -514,13 +560,15 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 {
 	apr_array_header_t *targets;
 	
-	targets = apr_array_make([[self pool] pool], 1, sizeof(const char *));
+	targets = apr_array_make([self pool], 1, sizeof(const char *));
 	APR_ARRAY_PUSH(targets, const char *) = [path UTF8String];
 	
 	svn_opt_revision_t startRev;
 	startRev.kind = svn_opt_revision_head;
     
 	svn_opt_revision_t endRev;
+    
+    Pool *subpool = [[Pool alloc] initWithPool:self];
     
 	svn_error_t *err = svn_client_log(targets,
                                       &startRev,
@@ -530,8 +578,10 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
                                       cg_svnobjc_log_receiver_func,
                                       self,
                                       [self ctx], 
-                                      [[self pool] pool]);
+                                      [subpool pool]);
 	
+    [subpool release];
+    
 	if (err ){
 		[self setErrorMessage:[self errorMessage:err]];
 		return NO;
@@ -548,7 +598,7 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 static svn_error_t* cg_svnobjc_cancel_func(void *baton)
 {
 	Client *client = (Client *)baton;
-	
+ 	
 	if (![client delegate])
 		return SVN_NO_ERROR;
 	
@@ -564,7 +614,7 @@ static svn_error_t* cg_svnobjc_cancel_func(void *baton)
 static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *cnotify, apr_pool_t *pool)
 {
 	Client *client = (Client *)baton;
-	
+ 	
 	if (![client delegate])
 		return;
 	
@@ -579,6 +629,7 @@ static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *cnoti
 static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool)
 {
 	Client *client = (Client *)baton;
+    
 	id<ClientDelegate> clientDelegate = [client delegate];
 	
 	if (clientDelegate == nil)
@@ -597,6 +648,7 @@ static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t tot
 static void cg_svnobjc_status_func(void *baton, const char *path, svn_wc_status_t *status)
 {
 	Client *client = (Client *)baton;
+    
 	id<ClientDelegate> clientDelegate = [client delegate];
 	
 	if (clientDelegate == nil)
@@ -630,6 +682,7 @@ static svn_error_t* cg_svnobjc_info_receiver_func(void *baton, const char *path,
 static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *changed_paths, svn_revnum_t revision, const char *author, const char *date,const char *message, apr_pool_t *pool)
 {
 	Client *client = (Client *)baton;
+    
 	id<ClientDelegate> clientDelegate = [client delegate];
 	
 	if (clientDelegate == nil)
@@ -645,6 +698,6 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
     [logInfo setMessage:[NSString stringWithUTF8String:message]];
 	[[client delegate] log:logInfo object:[client delegateObject]];
 	[logInfo release];
-    
+        
 	return SVN_NO_ERROR;
 }

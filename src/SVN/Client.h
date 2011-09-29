@@ -8,9 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <SVN/Core.h>
+#import <SVN/Pool.h>
 #import <SVN/Auth.h>
-#import <SVN/Fs.h>
 #import <SVN/Notify.h>
 #import <SVN/Progress.h>
 #import <SVN/Status.h>
@@ -27,18 +26,16 @@
 - (BOOL)doCancel;
 @end
 
-@interface Client : Core {
+@interface Client : Pool {
 }
 @property(nonatomic, assign) svn_client_ctx_t *ctx;
 @property(retain) Auth *auth;
-@property(retain) Fs *fs;
 @property(nonatomic, assign) id<ClientDelegate> delegate;
 @property(retain) NSObject *delegateObject;
 @property(retain) NSMutableArray *resultSet;
 @property(retain) NSString *errorMessage;
 
 - (id)init;
-- (id)initWithPool:(Pool *)aPool;
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;
 - (BOOL)checkout:(NSString *)url path:(NSString *)path recurse:(BOOL)recurse;
 - (BOOL)update:(NSString *)path recurse:(BOOL)recurse;

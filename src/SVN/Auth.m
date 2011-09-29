@@ -84,18 +84,18 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 @synthesize providers;
 @synthesize delegateObject;
 
-- (id)initWithPool:(Pool *)aPool
+- (id)init
 {
-	if ((self = [super initWithPool:aPool])) {
+	if ((self = [super init])) {
 		
-		[self setProviders:apr_array_make ([[self pool] pool], 4, sizeof (svn_auth_provider_object_t *))];
+		[self setProviders:apr_array_make ([self pool], 4, sizeof (svn_auth_provider_object_t *))];
 		
 		svn_auth_provider_object_t *provider;
 		
 		svn_auth_get_ssl_server_trust_prompt_provider (&provider,
 											   cg_svnobjc_auth_ssl_server_trust_prompt,
 											   self, /* baton */
-											   [[self pool] pool]);
+											   [self pool]);
 		APR_ARRAY_PUSH ([self providers], svn_auth_provider_object_t *) = provider;
 		
 		svn_auth_get_simple_prompt_provider(
@@ -103,14 +103,14 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 											cg_svnobjc_simple_prompt_callback,
 											self, /* baton */
 											2, /* retry limit */
-											[[self pool] pool]);
+											[self pool]);
 		APR_ARRAY_PUSH ([self providers], svn_auth_provider_object_t *) = provider;
 		
 		svn_auth_get_username_prompt_provider (&provider,
 											   cg_svnobjc_username_prompt_callback,
 											   self, /* baton */
 											   2, /* retry limit */ 
-											   [[self pool] pool]);
+											   [self pool]);
 		
 		APR_ARRAY_PUSH ([self providers], svn_auth_provider_object_t *) = provider;
 	}

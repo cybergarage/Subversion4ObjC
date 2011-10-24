@@ -88,6 +88,17 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 }
 
 #pragma mark -
+#pragma mark Auth Enabled
+
+- (void)setAuthEnabled:(BOOL)flag
+{
+}
+
+- (BOOL)isAuthEnabled
+{
+}
+
+#pragma mark -
 #pragma mark list
 
 - (void)errorMessage:(svn_error_t *)err buffer:(NSMutableString *)buffer

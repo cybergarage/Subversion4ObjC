@@ -88,7 +88,7 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 {
 	if ((self = [super init])) {
 		
-		[self setProviders:apr_array_make ([self pool], 4, sizeof (svn_auth_provider_object_t *))];
+		[self setProviders:apr_array_make ([self pool], 3, sizeof (svn_auth_provider_object_t *))];
 		
 		svn_auth_provider_object_t *provider;
 		
@@ -126,11 +126,11 @@ cg_svnobjc_auth_ssl_server_trust_prompt(
 
 static svn_error_t *
 cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
-                           void *baton,
-                           const char *realm,
-                           const char *username,
-                           svn_boolean_t may_save,
-                           apr_pool_t *pool)
+                            void *baton,
+                            const char *realm,
+                            const char *username,
+                            svn_boolean_t may_save,
+                            apr_pool_t *pool)
 {
 	Auth *svnAuth = (Auth *)baton;
 	
@@ -160,9 +160,9 @@ cg_svnobjc_simple_prompt_callback (svn_auth_cred_simple_t **cred,
 	[authCred release];
 	
 	*cred = credRet;
+    
 	return SVN_NO_ERROR;
 }
-
 
 /* A tiny callback function of type 'svn_auth_username_prompt_func_t'. For
  a much better example, see svn_cl__auth_username_prompt in the official
@@ -193,6 +193,7 @@ cg_svnobjc_username_prompt_callback (svn_auth_cred_username_t **cred,
 	[authCred release];
 	
 	*cred = credRet;
+    
 	return SVN_NO_ERROR;
 }
 

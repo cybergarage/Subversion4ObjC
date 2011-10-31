@@ -68,10 +68,7 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	ctx->progress_baton = self;
 	
 	[self setAuth:[[[Auth alloc] init] autorelease]];
-	if (![self auth]) {
-		return nil;
-	}	
-	svn_auth_open (&ctx->auth_baton, [[self auth] providers], [self pool]);
+    svn_auth_open (&ctx->auth_baton, [[self auth] providers], [self pool]);
 
 	return self;	
 }
@@ -85,17 +82,6 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
     self.errorMessage = nil;
     
 	[super dealloc];
-}
-
-#pragma mark -
-#pragma mark Auth Enabled
-
-- (void)setAuthEnabled:(BOOL)flag
-{
-}
-
-- (BOOL)isAuthEnabled
-{
 }
 
 #pragma mark -

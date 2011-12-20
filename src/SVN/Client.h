@@ -34,6 +34,7 @@
 @property(retain) NSObject *delegateObject;
 @property(retain) NSMutableArray *resultSet;
 @property(retain) NSString *errorMessage;
+@property(retain) NSMutableArray *logs;
 
 - (id)init;
 - (BOOL)list:(NSString *)url recurse:(BOOL)recurse;

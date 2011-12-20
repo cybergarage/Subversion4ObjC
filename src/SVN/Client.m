@@ -24,6 +24,7 @@
 @synthesize delegateObject;
 @synthesize resultSet;
 @synthesize errorMessage;
+@synthesize logs;
 
 static void cg_svnobjc_ra_progress_notify_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool);
 static void cg_svnobjc_wc_notify_func2(void *baton, const svn_wc_notify_t *notify, apr_pool_t *pool);
@@ -80,6 +81,7 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
     self.delegateObject = nil;
     self.resultSet = nil;
     self.errorMessage = nil;
+    self.logs = nil;
     
 	[super dealloc];
 }
@@ -555,6 +557,8 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 
 - (BOOL)log:(NSString *)path 
 {
+    [self setLogs:[NSMutableArray array]];
+    
 	apr_array_header_t *targets;
 	
 	targets = apr_array_make([self pool], 1, sizeof(const char *));
@@ -564,6 +568,8 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
 	startRev.kind = svn_opt_revision_head;
     
 	svn_opt_revision_t endRev;
+	endRev.kind = svn_opt_revision_number;
+	endRev.value.number = 1;
     
     Pool *subpool = [[Pool alloc] initWithPool:self];
     
@@ -693,8 +699,11 @@ static svn_error_t* cg_svnobjc_log_receiver_func(void *baton, apr_hash_t *change
     [logInfo setAuthor:[NSString stringWithUTF8String:author]];
     [logInfo setDate:[NSString stringWithUTF8String:date]];
     [logInfo setMessage:[NSString stringWithUTF8String:message]];
+    
+    [[client logs] addObject:logInfo];
 	[[client delegate] log:logInfo object:[client delegateObject]];
-	[logInfo release];
+	
+    [logInfo release];
         
 	return SVN_NO_ERROR;
 }
